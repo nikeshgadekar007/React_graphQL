@@ -14,9 +14,10 @@ const typeDefs = `
 
 		}
 		type Mutation {
-			createUser(name: String!, age: Int!, isMarried: Boolean!): User
-      upadateUser(id: ID!, name: String!, age: Int!, isMarried: Boolean!): [User]
-		}
+		  createUser(name: String!, age: Int!, isMarried: Boolean!): User
+          upadateUser(id: ID!, name: String!, age: Int!, isMarried: Boolean!): [User]
+          deleteUser(id : ID!) : [User]
+            }
 		type User {
 			id: ID
 			name: String
@@ -32,6 +33,9 @@ const resolvers = {
     },
     getUserById: (parent, args) => {
       const id = args.id;
+      if(!id) {
+        return users;
+      }
       return users.find((user) => user.id === id);
     },
   },
@@ -57,12 +61,18 @@ const resolvers = {
            user.id === id ? { ...user, ...newValues } : user
          );
         };
-    console.log("Nikesh====")
       const newData =  updateUser(users, id, { id, name, age, isMarried });
       return newData;
     },
+    deleteUser: (parent, args) => {
+      const {id} = args;
+      if(!id){
+        return users;
+      };
+      return users.filter(user => user.id !== id);
+    }
   },
-};
+};  
 
 const server = new ApolloServer({ typeDefs, resolvers });
 

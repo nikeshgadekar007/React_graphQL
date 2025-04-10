@@ -1,8 +1,6 @@
 /** @format */
 
 import React, { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import { useQuery, useMutation, gql } from "@apollo/client";
 
@@ -33,13 +31,22 @@ const CREATE_USER = gql`
     createUser(name: $name, age: $age, isMarried: $isMarried) {
       name
       age
-      isMarried 
+      isMarried
+    }
+  }
+`;
+
+const DELETE_USER = gql`
+  mutation DeleteUser($id: ID!) {
+    deleteUser(id: $id) {
+      name
+      id
     }
   }
 `;
 
 function App() {
-  const [newUser, setNewUser] = React.useState({});
+  const [newUser, setNewUser] = useState({});
   const {
     data: result1,
     loading: loading1,
@@ -53,19 +60,27 @@ function App() {
     variables: { id: "2" },
   });
 
-  const [createUser, { data, loading, error }] = useMutation(CREATE_USER);
-  console.log("result2===", result2);
-  console.log("createUser===", data, loading, error);
+  const [createUser, { data, loading, error }] = useMutation(CREATE_USER, {
+    refetchQueries: [
+      GET_USERS, // DocumentNode object parsed with gql
+    ],
+  });
+
+  const [deleteUser, { data: data3, loading: loading3, error: errro3 }] =
+    useMutation(DELETE_USER, {
+      refetchQueries: [
+        GET_USERS, // DocumentNode object parsed with gql
+      ],
+    });
 
   if (loading1) return <p>loading...</p>;
   if (error1) return <p>`Error: ${error.message}`</p>;
 
   const handleCreateUser = async () => {
-    console.log("newUser===", newUser);
-    createUser({
+    await createUser({
       variables: {
         name: newUser.name,
-        age: 63,
+        age: parseInt(newUser.age),
         isMarried: false,
       },
     });
@@ -74,6 +89,14 @@ function App() {
   const handleChange = (e) => {
     const val = e.target.value;
     setNewUser((prev) => ({ ...prev, name: val }));
+  };
+
+  const deleteSelectedUser = async (id) => {
+    await deleteUser({
+      variables: {
+        id: id,
+      },
+    });
   };
 
   return (
@@ -96,7 +119,6 @@ function App() {
           <button onClick={handleCreateUser}>Create user</button>
         </div>
       </div>
-
       {loading2 ? (
         <p>loading...</p>
       ) : (
@@ -105,18 +127,21 @@ function App() {
           <p>Name: {result2?.getUserById?.name}</p>
         </>
       )}
-
+      ==========================================
       <h2>Users</h2>
       <div>
         {result1 &&
           result1.getUsers &&
-          result1.getUsers.map(({ name, age, isMarried }, index) => (
+          result1.getUsers.map(({ id, name, age, isMarried }, index) => (
             <div key={index}>
               {name && <p>Name: {name}</p>}
               {age && <p>Age: {age}</p>}
               {isMarried && (
                 <p>Is this user married: {isMarried ? "YES" : "NO"}</p>
               )}
+              <div>
+                <button onClick={() => deleteSelectedUser(id)}>Delete</button>
+              </div>
               ===================================================
             </div>
           ))}
