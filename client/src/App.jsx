@@ -32,6 +32,8 @@ const CREATE_USER = gql`
   mutation CreateUser($name: String!, $age: Int!, $isMarried: Boolean!) {
     createUser(name: $name, age: $age, isMarried: $isMarried) {
       name
+      age
+      isMarried 
     }
   }
 `;
@@ -51,8 +53,9 @@ function App() {
     variables: { id: "2" },
   });
 
-  const [createUser] = useMutation(CREATE_USER);
+  const [createUser, { data, loading, error }] = useMutation(CREATE_USER);
   console.log("result2===", result2);
+  console.log("createUser===", data, loading, error);
 
   if (loading1) return <p>loading...</p>;
   if (error1) return <p>`Error: ${error.message}`</p>;

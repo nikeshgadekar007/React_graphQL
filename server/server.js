@@ -10,11 +10,12 @@ const users = [
 const typeDefs = `
 		type Query {
 			getUsers: [User]
-	        getUserById(id: ID!): User
+	    getUserById(id: ID!): User
 
 		}
 		type Mutation {
 			createUser(name: String!, age: Int!, isMarried: Boolean!): User
+      upadateUser(id: ID!, name: String!, age: Int!, isMarried: Boolean!): [User]
 		}
 		type User {
 			id: ID
@@ -47,6 +48,18 @@ const resolvers = {
 
       users.push(newUser);
       return users
+    },
+    upadateUser: (parent, args) => {
+      const { id, name, age, isMarried } = args;
+
+      const updateUser = (users, id, newValues) => {
+         return users.map(user => 
+           user.id === id ? { ...user, ...newValues } : user
+         );
+        };
+    console.log("Nikesh====")
+      const newData =  updateUser(users, id, { id, name, age, isMarried });
+      return newData;
     },
   },
 };
