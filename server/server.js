@@ -15,7 +15,7 @@ const typeDefs = `
 		}
 		type Mutation {
 		  createUser(name: String!, age: Int!, isMarried: Boolean!): User
-          upadateUser(id: ID!, name: String!, age: Int!, isMarried: Boolean!): [User]
+          updateUser(id: ID!, name: String!, age: Int!, isMarried: Boolean!): [User]
           deleteUser(id : ID!) : [User]
             }
 		type User {
@@ -53,7 +53,7 @@ const resolvers = {
       users.push(newUser);
       return users
     },
-    upadateUser: (parent, args) => {
+    updateUser: (parent, args) => {
       const { id, name, age, isMarried } = args;
 
       const updateUser = (users, id, newValues) => {
@@ -61,14 +61,13 @@ const resolvers = {
            user.id === id ? { ...user, ...newValues } : user
          );
         };
-      const newData =  updateUser(users, id, { id, name, age, isMarried });
-      return newData;
+      return updateUser(users, id, {id, name, age, isMarried});
     },
     deleteUser: (parent, args) => {
       const {id} = args;
       if(!id){
         return users;
-      };
+      }
       return users.filter(user => user.id !== id);
     }
   },
