@@ -5,8 +5,8 @@ import "./App.css";
 import { useQuery, useMutation, gql } from "@apollo/client";
 
 const GET_USERS = gql`
-  query GetUsers {
-    getUsers {
+  query GetUsers($city: String) {
+    getUsers(city: $city) {
       id
       name
       age
@@ -51,7 +51,11 @@ function App() {
     data: result1,
     loading: loading1,
     error: error1,
-  } = useQuery(GET_USERS);
+  } = useQuery(GET_USERS, {
+    variables: {
+      city: "Hong Kong",
+    },
+  });
   const {
     data: result2,
     loading: loading2,

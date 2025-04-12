@@ -1,39 +1,41 @@
-import {ApolloServer} from '@apollo/server'
-import {startStandaloneServer} from '@apollo/server/standalone';
+/** @format */
+
+import { ApolloServer } from "@apollo/server";
+import { startStandaloneServer } from "@apollo/server/standalone";
 
 const users = [
-	{id: "1", name:"Nikesh", age: 32, isMarried: true},
-	{id: "2", name:"Dipesh", age: 32, isMarried: true},
-	{id: "3", name:"Amit", age: 39, isMarried: true}
+  { id: "1", name: "Nikesh", age: 32, isMarried: true },
+  { id: "2", name: "Dipesh", age: 32, isMarried: true },
+  { id: "3", name: "Amit", age: 39, isMarried: true },
 ];
 
 const typeDefs = `
-		type Query {
-			getUsers: [User]
-	    getUserById(id: ID!): User
-
-		}
-		type Mutation {
-		  createUser(name: String!, age: Int!, isMarried: Boolean!): User
-          updateUser(id: ID!, name: String!, age: Int!, isMarried: Boolean!): [User]
-          deleteUser(id : ID!) : [User]
-            }
-		type User {
-			id: ID
-			name: String
-			age: Int
-			isMarried: Boolean 
-		}
+  type Query {
+    getUsers(city: String): [User]
+    getUserById(id: ID!): User
+  }
+  type Mutation {
+    createUser(name: String!, age: Int!, isMarried: Boolean!): User
+    updateUser(id: ID!, name: String!, age: Int!, isMarried: Boolean!): [User]
+    deleteUser(id: ID!): [User]
+  }
+  type User {
+    id: ID
+    name: String
+    age: Int
+    isMarried: Boolean
+  }
 `;
 
 const resolvers = {
   Query: {
-    getUsers: () => {
+    getUsers: (parent, { city }) => {
+      console.log("city====", city);
       return users;
     },
     getUserById: (parent, args) => {
       const id = args.id;
-      if(!id) {
+      if (!id) {
         return users;
       }
       return users.find((user) => user.id === id);
@@ -51,27 +53,27 @@ const resolvers = {
       };
 
       users.push(newUser);
-      return users
+      return users;
     },
     updateUser: (parent, args) => {
       const { id, name, age, isMarried } = args;
 
       const updateUser = (users, id, newValues) => {
-         return users.map(user => 
-           user.id === id ? { ...user, ...newValues } : user
-         );
-        };
-      return updateUser(users, id, {id, name, age, isMarried});
+        return users.map((user) =>
+          user.id === id ? { ...user, ...newValues } : user
+        );
+      };
+      return updateUser(users, id, { id, name, age, isMarried });
     },
     deleteUser: (parent, args) => {
-      const {id} = args;
-      if(!id){
+      const { id } = args;
+      if (!id) {
         return users;
       }
-      return users.filter(user => user.id !== id);
-    }
+      return users.filter((user) => user.id !== id);
+    },
   },
-};  
+};
 
 const server = new ApolloServer({ typeDefs, resolvers });
 
